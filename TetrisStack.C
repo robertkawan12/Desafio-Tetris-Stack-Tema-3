@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_FILA 5 // tamanho fixo da fila de peças
+#define MAX_FILA 5  // tamanho fixo da fila
+#define MAX_PILHA 3 // limite de peças na reserva
 
 // Estrutura que representa uma peça do jogo
 typedef struct
@@ -15,28 +16,43 @@ typedef struct
 typedef struct
 {
     Peca itens[MAX_FILA];
-    int frente;  // índice do primeiro elemento
-    int tras;    // índice do último elemento
-    int tamanho; // quantidade atual de elementos
+    int frente;
+    int tras;
+    int tamanho;
 } Fila;
 
-// Protótipos
+// Estrutura da pilha
+typedef struct
+{
+    Peca itens[MAX_PILHA];
+    int topo;
+} Pilha;
+
+// -------- Protótipos --------
 void inicializarFila(Fila *f);
+void inicializarPilha(Pilha *p);
 int filaCheia(Fila *f);
 int filaVazia(Fila *f);
+int pilhaCheia(Pilha *p);
+int pilhaVazia(Pilha *p);
 Peca gerarPeca(int id);
 void enfileirar(Fila *f, Peca p);
 Peca desenfileirar(Fila *f);
-void exibirFila(Fila *f);
+void empilhar(Pilha *p, Peca x);
+Peca desempilhar(Pilha *p);
+void exibirEstado(Fila *f, Pilha *p);
 
-// Função principal
+// -------- Função principal --------
 int main()
 {
     Fila fila;
+    Pilha pilha;
     int opcao, idAtual = 0;
-    inicializarFila(&fila);
 
-    // Preenche a fila inicial com 5 peças
+    inicializarFila(&fila);
+    inicializarPilha(&pilha);
+
+    // Preenche a fila inicial
     for (int i = 0; i < MAX_FILA; i++)
     {
         enfileirar(&fila, gerarPeca(idAtual++));
@@ -44,45 +60,58 @@ int main()
 
     do
     {
-        printf("\n=== Fila de peças ===\n");
-        exibirFila(&fila);
+        printf("\n=== Estado atual ===\n");
+        exibirEstado(&fila, &pilha);
 
-        printf("\nOpções de ação:\n");
-        printf("1 - Jogar peça (dequeue)\n");
-        printf("2 - Inserir nova peça (enqueue)\n");
+        printf("\nOpções de Ação:\n");
+        printf("1 - Jogar peça\n");
+        printf("2 - Reservar peça\n");
+        printf("3 - Usar peça reservada\n");
         printf("0 - Sair\n");
         printf("Escolha: ");
         scanf("%d", &opcao);
 
         switch (opcao)
         {
-        case 1:
+        case 1: // Jogar peça
             if (!filaVazia(&fila))
             {
-                Peca removida = desenfileirar(&fila);
-                printf("\nVocê jogou a peça [%c %d]\n", removida.nome, removida.id);
-            }
-            else
-            {
-                printf("\nFila vazia! Não há peça para jogar.\n");
+                Peca jogada = desenfileirar(&fila);
+                printf("\nVocê jogou a peça [%c %d]\n", jogada.nome, jogada.id);
+                // Mantém a fila cheia
+                enfileirar(&fila, gerarPeca(idAtual++));
             }
             break;
 
-        case 2:
-            if (!filaCheia(&fila))
+        case 2: // Reservar peça
+            if (!filaVazia(&fila) && !pilhaCheia(&pilha))
             {
-                Peca nova = gerarPeca(idAtual++);
-                enfileirar(&fila, nova);
-                printf("\nPeça [%c %d] inserida na fila.\n", nova.nome, nova.id);
+                Peca reservada = desenfileirar(&fila);
+                empilhar(&pilha, reservada);
+                printf("\nPeça [%c %d] reservada!\n", reservada.nome, reservada.id);
+                // Mantém a fila cheia
+                enfileirar(&fila, gerarPeca(idAtual++));
+            }
+            else if (pilhaCheia(&pilha))
+            {
+                printf("\nA pilha de reserva está cheia!\n");
+            }
+            break;
+
+        case 3: // Usar peça da reserva
+            if (!pilhaVazia(&pilha))
+            {
+                Peca usada = desempilhar(&pilha);
+                printf("\nVocê usou a peça reservada [%c %d]\n", usada.nome, usada.id);
             }
             else
             {
-                printf("\nFila cheia! Não é possível inserir nova peça.\n");
+                printf("\nA pilha de reserva está vazia!\n");
             }
             break;
 
         case 0:
-            printf("\nSaindo do jogo...\n");
+            printf("\nSaindo...\n");
             break;
 
         default:
@@ -94,9 +123,8 @@ int main()
     return 0;
 }
 
-// Funções auxiliares
+// -------- Implementação das funções --------
 
-// Inicializa a fila
 void inicializarFila(Fila *f)
 {
     f->frente = 0;
@@ -105,43 +133,50 @@ void inicializarFila(Fila *f)
     srand(time(NULL));
 }
 
-// Verifica se a fila está cheia
+void inicializarPilha(Pilha *p)
+{
+    p->topo = -1;
+}
+
 int filaCheia(Fila *f)
 {
-    return (f->tamanho == MAX_FILA);
+    return f->tamanho == MAX_FILA;
 }
 
-// Verifica se a fila está vazia
 int filaVazia(Fila *f)
 {
-    return (f->tamanho == 0);
+    return f->tamanho == 0;
 }
 
-// Gera uma peça automaticamente
+int pilhaCheia(Pilha *p)
+{
+    return p->topo == MAX_PILHA - 1;
+}
+
+int pilhaVazia(Pilha *p)
+{
+    return p->topo == -1;
+}
+
 Peca gerarPeca(int id)
 {
     char tipos[] = {'I', 'O', 'T', 'L'};
-    int indice = rand() % 4; // seleciona um tipo aleatório
+    int indice = rand() % 4;
     Peca p;
     p.nome = tipos[indice];
     p.id = id;
     return p;
 }
 
-// Insere uma peça no final da fila (enqueue)
 void enfileirar(Fila *f, Peca p)
 {
     if (filaCheia(f))
-    {
-        printf("\nErro: fila cheia!\n");
         return;
-    }
     f->tras = (f->tras + 1) % MAX_FILA;
     f->itens[f->tras] = p;
     f->tamanho++;
 }
 
-// Remove a peça da frente da fila (dequeue)
 Peca desenfileirar(Fila *f)
 {
     Peca p = f->itens[f->frente];
@@ -150,19 +185,32 @@ Peca desenfileirar(Fila *f)
     return p;
 }
 
-// Exibe o estado atual da fila
-void exibirFila(Fila *f)
+void empilhar(Pilha *p, Peca x)
 {
-    if (filaVazia(f))
-    {
-        printf("Fila vazia!\n");
+    if (pilhaCheia(p))
         return;
-    }
-    int i, indice;
-    for (i = 0; i < f->tamanho; i++)
+    p->itens[++p->topo] = x;
+}
+
+Peca desempilhar(Pilha *p)
+{
+    return p->itens[p->topo--];
+}
+
+void exibirEstado(Fila *f, Pilha *p)
+{
+    printf("Fila de peças: ");
+    for (int i = 0; i < f->tamanho; i++)
     {
-        indice = (f->frente + i) % MAX_FILA;
+        int indice = (f->frente + i) % MAX_FILA;
         printf("[%c %d] ", f->itens[indice].nome, f->itens[indice].id);
+    }
+    printf("\n");
+
+    printf("Pilha de reserva (Topo -> Base): ");
+    for (int i = p->topo; i >= 0; i--)
+    {
+        printf("[%c %d] ", p->itens[i].nome, p->itens[i].id);
     }
     printf("\n");
 }
