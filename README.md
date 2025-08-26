@@ -1,71 +1,45 @@
-# 🎮 Tetris Stack - Nível 2
+# 🎮 Projeto - Jogo de Estratégia em C
 
-Este projeto expande o desafio do **Nível 1**, adicionando uma **pilha de peças reservadas** ao gerenciamento da fila circular.  
-Agora o jogador pode **jogar, reservar e usar peças** dentro de uma estrutura combinada de **fila + pilha**.
-
----
-
-## 📌 Descrição
-
-O sistema gerencia duas estruturas principais:
-
--   **Fila de peças (queue)** → sempre cheia, com 5 elementos fixos.
--   **Pilha de reserva (stack)** → pode armazenar até 3 peças no estilo **LIFO** (último a entrar, primeiro a sair).
-
-Cada peça possui:
-
--   **nome**: caractere que representa o tipo (`'I'`, `'O'`, `'T'`, `'L'`).
--   **id**: identificador único (número crescente).
-
-### 🔹 Ações disponíveis
-
-1. **Jogar peça** → remove a peça da frente da fila (dequeue).
-
-    - Uma nova peça é gerada e adicionada ao final, mantendo a fila sempre cheia.
-
-2. **Reservar peça** → move a peça da frente da fila para o **topo da pilha** (se houver espaço).
-
-    - Também gera nova peça para o final da fila.
-
-3. **Usar peça reservada** → remove a peça do **topo da pilha** (pop).
-
-4. **Sair** → finaliza o programa.
+Este projeto foi desenvolvido em linguagem C como parte de um trabalho acadêmico.  
+O jogo simula um sistema de territórios, tropas e missões, inspirado em jogos de tabuleiro de estratégia.
 
 ---
 
-## 📂 Estrutura do Código
+## 🚀 Funcionalidades
 
--   `struct Peca` → representa cada peça (`nome`, `id`).
--   `struct Fila` → fila circular de peças futuras.
--   `struct Pilha` → pilha linear de peças reservadas.
+O projeto foi construído em etapas (níveis), cada uma adicionando novas funcionalidades:
 
-**Funções principais**:
+### 🔹 Nível 1 - Cadastro de Territórios
 
--   `inicializarFila` / `inicializarPilha` → preparam as estruturas.
--   `gerarPeca` → cria nova peça com tipo aleatório.
--   `enfileirar` / `desenfileirar` → manipulam a fila.
--   `empilhar` / `desempilhar` → manipulam a pilha.
--   `exibirEstado` → mostra o conteúdo da fila e da pilha.
+-   O jogador pode cadastrar territórios com:
+    -   Nome
+    -   Cor do exército
+    -   Quantidade de tropas
+
+### 🔹 Nível 2 - Gerenciamento de Ataques
+
+-   O sistema permite que um território ataque outro.
+-   O ataque considera:
+    -   Quantidade de tropas disponíveis
+    -   Defesas do território inimigo
+
+### 🔹 Nível 3 - Sistema de Missões
+
+-   Cada jogador recebe uma missão aleatória no início do jogo.
+-   As missões são escolhidas a partir de um vetor de strings pré-definidas.
+-   O jogador vence se cumprir a condição da missão.
+
+### 🔹 Nível 4 - Inventário (Mochila)
+
+-   Comparação entre **vetor (lista sequencial)** e **lista encadeada** para armazenar itens.
+-   Demonstração de performance e uso em situações de jogo.
+
+### 🔹 Nível 5 - Coleta de Pistas (Modo Detetive)
+
+-   Jogador pode coletar pistas na mansão.
+-   Pistas podem ser relacionadas a suspeitos.
+-   Sistema de dedução para identificar o culpado.
 
 ---
 
-## 📊 Exemplo de Saída
-
-```bash
-=== Estado atual ===
-Fila de peças: [T 0] [O 1] [L 2] [I 3] [I 4]
-Pilha de reserva (Topo -> Base):
-
-Opções de Ação:
-1 - Jogar peça
-2 - Reservar peça
-3 - Usar peça reservada
-0 - Sair
-Escolha: 2
-
-Peça [T 0] reservada!
-
-=== Estado atual ===
-Fila de peças: [O 1] [L 2] [I 3] [I 4] [L 5]
-Pilha de reserva (Topo -> Base): [T 0]
-```
+## 📂 Estrutura do Projeto
